@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LDM Finance</title>
+  <style>
+    :root{
+      --navy:#173247;--navy2:#21465d;--teal:#087e83;--teal-soft:#e7f4f3;
+      --gold:#c49a48;--bg:#f3f6f8;--surface:#fff;--text:#1e2c36;
+      --muted:#71808b;--line:#e5ebef;--red:#b54747;--red-soft:#fff0ef;
+      --green:#217a58;--green-soft:#eaf6ef;--shadow:0 8px 24px rgba(23,50,71,.07);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,Arial,sans-serif;font-size:14px}
+    button,input,select,textarea{font:inherit}
+    button{cursor:pointer}
+    .app-shell{display:grid;grid-template-columns:238px 1fr;min-height:100vh}
+    .sidebar{background:var(--navy);color:#fff;padding:24px 16px;display:flex;flex-direction:column;gap:26px}
+    .brand{display:flex;align-items:center;gap:11px;padding:0 8px}
+    .brand-mark{width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,#d5b36e,#a97b31);display:grid;place-items:center;color:#173247;font-weight:900;font-size:17px}
+    .brand-name{font-size:17px;font-weight:800;letter-spacing:.2px}
+    .brand-sub{font-size:10px;color:#bdcbd4;margin-top:3px;letter-spacing:1.1px}
+    .nav-label{font-size:10px;color:#91a8b7;text-transform:uppercase;letter-spacing:1.3px;padding:0 12px;margin-bottom:6px}
+    .nav{display:grid;gap:5px}
+    .nav button{width:100%;border:0;background:transparent;color:#d7e1e7;text-align:left;padding:12px;border-radius:10px;display:flex;align-items:center;gap:11px;font-weight:600}
+    .nav button:hover,.nav button.active{background:#2b5268;color:#fff}
+    .nav-ico{width:22px;text-align:center;font-size:16px;color:#d9bd82}
+    .side-note{margin-top:auto;padding:14px;border:1px solid rgba(255,255,255,.13);border-radius:12px;color:#c5d2d9;font-size:11px;line-height:1.55}
+    .side-note strong{color:#fff;display:block;margin-bottom:5px}
+    .main{min-width:0}
+    .topbar{height:72px;background:#fff;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 30px;position:sticky;top:0;z-index:5}
+    .top-title{font-weight:800;font-size:16px;color:var(--navy)}
+    .top-meta{display:flex;align-items:center;gap:12px;color:var(--muted);font-size:12px}
+    .period-pill{padding:7px 11px;border-radius:20px;background:#f4f0e7;color:#87672d;font-weight:700}
+    .content{padding:28px 30px 44px;max-width:1500px;margin:0 auto}
+    .page-head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:22px}
+    .page-head h1{font-size:24px;line-height:1.2;margin:0;color:var(--navy);letter-spacing:-.5px}
+    .page-head p{margin:7px 0 0;color:var(--muted);font-size:13px}
+    .actions{display:flex;gap:8px;flex-wrap:wrap}
+    .btn{border:1px solid var(--line);background:#fff;color:var(--navy);padding:9px 13px;border-radius:9px;font-weight:700;font-size:12px;display:inline-flex;align-items:center;gap:7px}
+    .btn:hover{border-color:#b7c7d0;background:#f9fbfc}
+    .btn-primary{background:var(--teal);border-color:var(--teal);color:#fff}
+    .btn-primary:hover{background:#066d72;border-color:#066d72}
+    .btn-danger{color:var(--red);border-color:#f0d4d2;background:#fff}
+    .btn-small{padding:7px 9px;font-size:11px}
+    .grid{display:grid;gap:15px}
+    .stats{grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:18px}
+    .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:17px;box-shadow:var(--shadow)}
+    .stat-top{display:flex;align-items:center;justify-content:space-between;color:var(--muted);font-size:11px;font-weight:700}
+    .stat-icon{width:30px;height:30px;border-radius:9px;background:var(--teal-soft);color:var(--teal);display:grid;place-items:center;font-size:15px}
+    .stat-value{font-size:22px;font-weight:800;color:var(--navy);margin-top:14px;letter-spacing:-.5px}
+    .stat-foot{font-size:11px;color:var(--muted);margin-top:5px}
+    .two-col{grid-template-columns:1.25fr .75fr}
+    .section-title{font-size:14px;font-weight:800;color:var(--navy);margin:0 0 14px}
+    .section-sub{font-size:11px;color:var(--muted);margin:-8px 0 14px}
+    .month-toolbar{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+    .month-toolbar label{font-size:12px;color:var(--muted);font-weight:700}
+    select,input,textarea{border:1px solid #dce4e9;border-radius:8px;padding:9px 10px;background:#fff;color:var(--text);outline:none}
+    select:focus,input:focus,textarea:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(8,126,131,.1)}
+    .month-toolbar select{min-width:160px;font-weight:700;color:var(--navy)}
+    .month-summary{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+    .mini{padding:12px;border-radius:10px;background:#f7f9fa;border:1px solid #edf1f3}
+    .mini span{display:block;font-size:10px;color:var(--muted);margin-bottom:6px}
+    .mini strong{font-size:15px;color:var(--navy)}
+    .alert{padding:13px 14px;border-radius:10px;border:1px solid #f1d9b4;background:#fff8eb;color:#74541d;font-size:12px;line-height:1.55;margin-bottom:10px}
+    .alert-danger{border-color:#f2cfcc;background:var(--red-soft);color:#963f3b}
+    .alert-info{border-color:#d5e8e8;background:#f0f8f8;color:#28676a}
+    .alert strong{display:block;margin-bottom:3px}
+    .table-wrap{overflow:auto;border:1px solid var(--line);border-radius:11px}
+    table{width:100%;border-collapse:collapse;min-width:720px;background:#fff}
+    th{background:#f7f9fa;color:#687984;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.5px;padding:11px 12px;white-space:nowrap}
+    td{padding:11px 12px;border-top:1px solid #edf1f3;font-size:12px;vertical-align:middle}
+    tr:hover td{background:#fcfdfd}
+    .money{font-weight:750;color:var(--navy);white-space:nowrap}
+    .muted{color:var(--muted)}
+    .badge{display:inline-block;padding:5px 8px;border-radius:20px;font-size:10px;font-weight:800;white-space:nowrap}
+    .badge-green{background:var(--green-soft);color:var(--green)}
+    .badge-red{background:var(--red-soft);color:var(--red)}
+    .badge-gold{background:#fbf4e7;color:#8a682b}
+    .badge-grey{background:#eff2f4;color:#61717c}
+    .progress{height:7px;border-radius:10px;background:#edf1f3;overflow:hidden;margin-top:8px}
+    .progress>span{display:block;height:100%;background:var(--teal);border-radius:10px}
+    .empty{padding:28px;text-align:center;color:var(--muted);font-size:12px}
+    .form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+    .field{display:grid;gap:6px}
+    .field label{font-size:11px;font-weight:700;color:#5c6d78}
+    .field input,.field select,.field textarea{width:100%}
+    .field.full{grid-column:1/-1}
+    .form-note{font-size:11px;color:var(--muted);line-height:1.5}
+    .form-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:17px}
+    .modal-backdrop{position:fixed;inset:0;background:rgba(13,34,48,.46);z-index:20;display:grid;place-items:center;padding:16px}
+    .modal{width:min(560px,100%);max-height:90vh;overflow:auto;background:#fff;border-radius:16px;box-shadow:0 24px 70px rgba(0,0,0,.22);padding:22px}
+    .modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+    .modal-head h3{margin:0;font-size:17px;color:var(--navy)}
+    .close{border:0;background:#f1f4f5;border-radius:8px;width:30px;height:30px;font-size:18px;color:#52616a}
+    .toast{position:fixed;right:22px;bottom:22px;z-index:30;background:#18394c;color:#fff;padding:12px 16px;border-radius:10px;box-shadow:var(--shadow);font-size:12px;max-width:360px}
+    .toast.error{background:#9c3939}
+    .loading{opacity:.55;pointer-events:none}
+    .split-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:13px}
+    .inline-filter{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .inline-filter select,.inline-filter input{font-size:11px;padding:8px}
+    .setting-row{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:12px 0;border-bottom:1px solid var(--line)}
+    .setting-row:last-child{border:0}
+    .setting-row strong{display:block;color:var(--navy);font-size:12px}
+    .setting-row small{display:block;color:var(--muted);margin-top:4px;font-size:11px}
+    .setting-row input{width:190px;max-width:45%}
+    .footer-note{font-size:10px;color:#87949d;margin-top:16px;line-height:1.5}
+    .mobile-nav{display:none}
+
+    .login-screen{min-height:100vh;display:grid;place-items:center;padding:22px;background:radial-gradient(circle at top right,#e1f0ef 0,#f3f6f8 48%,#edf2f5 100%)}
+    .login-card{width:min(430px,100%);background:#fff;border:1px solid var(--line);border-radius:20px;padding:30px;box-shadow:0 20px 60px rgba(23,50,71,.12)}
+    .login-brand{display:flex;align-items:center;gap:12px;margin-bottom:28px}
+    .login-brand .brand-mark{width:46px;height:46px}
+    .login-title{font-size:24px;color:var(--navy);font-weight:850;letter-spacing:-.6px;margin:0}
+    .login-subtitle{color:var(--muted);font-size:12px;line-height:1.6;margin:8px 0 22px}
+    .login-form{display:grid;gap:13px}
+    .login-form .field label{font-size:12px}
+    .login-form input{padding:12px 13px}
+    .login-error{display:none;border:1px solid #f2cfcc;background:#fff0ef;color:#963f3b;border-radius:9px;padding:10px 12px;font-size:12px;line-height:1.5}
+    .login-error.show{display:block}
+    .login-submit{width:100%;justify-content:center;padding:12px}
+    .login-foot{margin-top:20px;padding-top:15px;border-top:1px solid var(--line);font-size:10px;line-height:1.6;color:#87949d;text-align:center}
+    .session-email{color:var(--muted);font-size:11px}
+    @media(max-width:760px){.login-card{padding:24px 20px}.session-email{display:none}}
+
+    @media(max-width:1050px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.two-col{grid-template-columns:1fr}}
+    @media(max-width:760px){
+      .app-shell{display:block}.sidebar{display:none}.topbar{height:60px;padding:0 16px}.content{padding:20px 14px 88px}
+      .page-head{display:block}.page-head .actions{margin-top:13px}.page-head h1{font-size:21px}
+      .stats{gap:9px}.card{padding:14px}.stat-value{font-size:18px}.month-summary{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .mobile-nav{display:grid;grid-template-columns:repeat(6,1fr);position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);z-index:10;padding:6px 3px calc(6px + env(safe-area-inset-bottom))}
+      .mobile-nav button{border:0;background:transparent;color:#6f7d86;font-size:9px;padding:5px 2px;display:grid;gap:3px;justify-items:center}
+      .mobile-nav button.active{color:var(--teal);font-weight:800}.mobile-nav span{font-size:17px}
+      .top-meta .period-pill{display:none}.form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}
+      .setting-row{align-items:flex-start;flex-direction:column}.setting-row input{max-width:100%;width:100%}
+    }
+  </style>
+</head>
+<body>
+<div id="app"><div class="content"><div class="card">Memuat LDM Finance…</div></div></div>
+<div id="modal-root"></div>
+<div id="toast-root"></div>
+<script>
+let DATA = null;
+let PAGE = "dashboard";
+let SELECTED_MONTH = "2026-11";
+let DEBT_FILTER = "Belum dibayar";
+let TX_FILTER = "Semua";
+let SEARCH_TX = "";
+let SESSION_USERNAME = "";
+let AUTH_BUSY = false;
+let DATA_SYNCING = false;
+let DATA_SYNC_ERROR = false;
+let BACKGROUND_REFRESH_BUSY = false;
+
+function money(value){
+  return new Intl.NumberFormat("id-ID",{style:"currency",currency:"IDR",maximumFractionDigits:0}).format(Number(value||0));
+}
+function num(value){const n=Number(value);return isFinite(n)?n:0;}
+function esc(value){
+  return String(value==null?"":value).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});
+}
+function todayIso(){
+  const d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+}
+function monthName(value){
+  if(!value)return "—";
+  const p=String(value).split("-");
+  const d=new Date(Number(p[0]),Number(p[1])-1,1);
+  return d.toLocaleDateString("id-ID",{month:"long",year:"numeric"});
+}
+function dateLabel(value){
+  if(!value)return "Belum ditentukan";
+  const p=String(value).split("-");
+  if(p.length!==3)return value;
+  return new Date(Number(p[0]),Number(p[1])-1,Number(p[2])).toLocaleDateString("id-ID",{day:"2-digit",month:"short",year:"numeric"});
+}
+function activeTransactions(){
+  return (DATA.transactions||[]).filter(x=>x.status!=="Dibatalkan");
+}
+function debtForMonth(month){
+  return (DATA.debts||[]).filter(x=>x.budgetMonth===month).reduce((s,x)=>s+num(x.amount),0);
+}
+function fundBalance(type){
+  return (DATA.funds||[]).filter(x=>x.fundType===type).reduce((s,x)=>s+(x.movement==="Setoran"?num(x.amount):-num(x.amount)),0);
+}
+function actualMonth(month){
+  const tx=activeTransactions().filter(x=>String(x.date||"").slice(0,7)===month);
+  const income=tx.filter(x=>x.type==="Pemasukan").reduce((s,x)=>s+num(x.amount),0);
+  const expense=tx.filter(x=>x.type==="Pengeluaran").reduce((s,x)=>s+num(x.amount),0);
+  const fund=(DATA.funds||[]).filter(x=>String(x.date||"").slice(0,7)===month)
+    .reduce((s,x)=>s+(x.movement==="Setoran"?num(x.amount):-num(x.amount)),0);
+  return {income,expense,fund,net:income-expense-fund,txCount:tx.length};
+}
+function planRows(){
+  let travel=0, emergency=0;
+  return (DATA.budgets||[]).slice().sort((a,b)=>a.month.localeCompare(b.month)).map(b=>{
+    const income=num(b.salary)+num(b.overtime)+num(b.speakerFee);
+    const needs=num(b.family)+num(b.rent)+num(b.electricity)+num(b.internet)+num(b.personal);
+    const debt=debtForMonth(b.month);
+    const surplus=income-needs-debt-num(b.travelExpense);
+    const remaining=surplus-num(b.travelContribution)-num(b.emergencyContribution);
+    travel+=num(b.travelContribution)-num(b.travelWithdrawal);
+    emergency+=num(b.emergencyContribution);
+    return {budget:b,income,needs,debt,surplus,remaining,travelEnd:travel,emergencyEnd:emergency};
+  });
+}
+function getSessionToken(){
+  try{return sessionStorage.getItem("ldm_access_token")||"";}catch(e){return "";}
+}
+function getRefreshToken(){
+  try{return sessionStorage.getItem("ldm_refresh_token")||"";}catch(e){return "";}
+}
+async function callApiAction(action,args=[]){
+  const response=await fetch("/api",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    cache:"no-store",
+    body:JSON.stringify({action,args})
+  });
+  let envelope;
+  try{envelope=await response.json();}
+  catch(e){throw new Error("Server Vercel mengirim respons yang tidak dapat dibaca.");}
+  if(!response.ok||!envelope||envelope.ok!==true){
+    const error=new Error(envelope&&envelope.error?envelope.error:"Permintaan ke server gagal.");
+    error.status=response.status;
+    throw error;
+  }
+  return envelope.data;
+}
+function setLoginSession(result){
+  sessionStorage.setItem("ldm_access_token",result.accessToken);
+  sessionStorage.setItem("ldm_refresh_token",result.refreshToken);
+  sessionStorage.setItem("ldm_login_username",result.username||"");
+  SESSION_USERNAME=result.username||"";
+}
+function clearLoginSession(){
+  try{
+    sessionStorage.removeItem("ldm_access_token");
+    sessionStorage.removeItem("ldm_refresh_token");
+    sessionStorage.removeItem("ldm_login_email");
+    sessionStorage.removeItem("ldm_login_username");
+  }catch(e){}
+  SESSION_USERNAME="";
+  DATA=null;
+  DATA_SYNCING=false;
+  DATA_SYNC_ERROR=false;
+  BACKGROUND_REFRESH_BUSY=false;
+}
+function isSessionError(error){
+  const message=String(error&&error.message?error.message:error||"").toLowerCase();
+  return message.includes("sesi login")||message.includes("sesi tidak valid")||
+    message.includes("kedaluwarsa")||message.includes("jwt")||
+    message.includes("unauthorized")||message.includes("token");
+}
+function showLogin(message){
+  const errorHtml=message?'<div id="login-error" class="login-error show">'+esc(message)+'</div>':'<div id="login-error" class="login-error"></div>';
+  document.getElementById("app").innerHTML=
+    '<div class="login-screen"><div class="login-card">'+
+      '<div class="login-brand"><div class="brand-mark">L</div><div><div class="brand-name" style="color:#173247">LDM Finance</div><div class="brand-sub" style="color:#71808b">PERSONAL CASHFLOW CONTROL</div></div></div>'+
+      '<h1 class="login-title">Selamat datang kembali</h1>'+
+      '<p class="login-subtitle">Masukkan username dan password untuk membuka dashboard keuangan pribadi Anda.</p>'+
+      errorHtml+
+      '<form class="login-form" onsubmit="loginSubmit(event)">'+
+        '<div class="field"><label for="login-username">Username</label><input id="login-username" name="username" type="text" autocomplete="username" placeholder="Masukkan username" autocapitalize="none" spellcheck="false" required></div>'+
+        '<div class="field"><label for="login-password">Password</label><input id="login-password" name="password" type="password" autocomplete="current-password" placeholder="Masukkan password" required></div>'+
+        '<button id="login-button" class="btn btn-primary login-submit" type="submit">Masuk ke LDM Finance</button>'+
+      '</form>'+
+      '<div class="login-foot">Dilindungi Supabase Authentication · Sesi privat pada perangkat ini<br>Jika lupa password, hubungi administrator aplikasi.</div>'+
+    '</div></div>';
+  const usernameInput=document.getElementById("login-username");
+  const savedUsername=sessionStorage.getItem("ldm_login_username")||"";
+  if(usernameInput&&savedUsername)usernameInput.value=savedUsername;
+}
+function setLoginProgress(message){
+  const subtitle=document.querySelector(".login-subtitle");
+  const button=document.getElementById("login-button");
+  if(subtitle)subtitle.textContent=message||"Sedang memuat dashboard…";
+  if(button){
+    button.disabled=true;
+    button.textContent="Memuat dashboard…";
+  }
+}
+function loginSubmit(event){
+  event.preventDefault();
+  if(AUTH_BUSY)return;
+  const form=event.target;
+  const username=form.username.value.trim().toLowerCase();
+  const password=form.password.value;
+  const button=document.getElementById("login-button");
+  AUTH_BUSY=true;
+  if(button){button.disabled=true;button.textContent="Memverifikasi…";}
+  callApiAction("loginAndLoad",[username,password])
+    .then(function(result){
+      setLoginSession(result);
+      AUTH_BUSY=false;
+      applyInstantAppData(result);
+    })
+    .catch(function(error){
+      AUTH_BUSY=false;
+      showLogin(error&&error.message?error.message:"Login gagal. Periksa username dan password.");
+      const usernameEl=document.getElementById("login-username");
+      if(usernameEl)usernameEl.value=username;
+    });
+}
+
+function applyInstantAppData(result){
+  if(!result||!result.data){
+    showLogin("Data dashboard belum dapat dimuat. Silakan coba kembali.");
+    return;
+  }
+  DATA=result.data;
+  DATA_SYNCING=!!result.refreshRequired;
+  DATA_SYNC_ERROR=false;
+  BACKGROUND_REFRESH_BUSY=false;
+  SESSION_USERNAME=sessionStorage.getItem("ldm_login_username")||"";
+  if(!DATA.budgets.some(x=>x.month===SELECTED_MONTH))SELECTED_MONTH=DATA.budgets[0]?DATA.budgets[0].month:"2026-11";
+  renderShell();
+  updateSyncStatus();
+  if(DATA_SYNCING){
+    // Beri browser kesempatan menggambar dashboard sebelum mengambil data terbaru.
+    setTimeout(function(){refreshAppDataInBackground(false);},120);
+  }
+}
+
+function updateSyncStatus(){
+  const badge=document.getElementById("sync-status");
+  if(!badge)return;
+  if(DATA_SYNCING){
+    badge.className="badge badge-gold";
+    badge.textContent="Sinkronisasi…";
+  }else if(DATA_SYNC_ERROR){
+    badge.className="badge badge-red";
+    badge.textContent="Cache · belum sinkron";
+  }else{
+    badge.className="badge badge-green";
+    badge.textContent="Data terbaru";
+  }
+}
+
+function refreshAppDataInBackground(retried){
+  if(BACKGROUND_REFRESH_BUSY||!getSessionToken())return;
+  BACKGROUND_REFRESH_BUSY=true;
+  DATA_SYNCING=true;
+  updateSyncStatus();
+  const token=getSessionToken();
+  callApiAction("refreshAppData",[token])
+    .then(function(data){
+      BACKGROUND_REFRESH_BUSY=false;
+      DATA=data;
+      DATA_SYNCING=false;
+      DATA_SYNC_ERROR=false;
+      if(!DATA.budgets.some(x=>x.month===SELECTED_MONTH))SELECTED_MONTH=DATA.budgets[0]?DATA.budgets[0].month:"2026-11";
+      updateSyncStatus();
+      const serverTimeEl=document.getElementById("server-time");
+      if(serverTimeEl)serverTimeEl.textContent="Server · "+(DATA.serverTime||"");
+      if(!document.querySelector("#modal-root .modal"))renderPage();
+    })
+    .catch(function(error){
+      BACKGROUND_REFRESH_BUSY=false;
+      if(!retried&&isSessionError(error)&&getRefreshToken()){
+        refreshLoginSession(function(ok){
+          if(ok)refreshAppDataInBackground(true);
+          else{
+            clearLoginSession();
+            showLogin("Sesi login berakhir. Silakan masuk kembali.");
+          }
+        });
+        return;
+      }
+      DATA_SYNCING=false;
+      DATA_SYNC_ERROR=true;
+      updateSyncStatus();
+      toast("Sinkronisasi belum berhasil. Data cache tetap ditampilkan; coba Perbarui kembali.",true);
+    });
+}
+
+function refreshLoginSession(callback){
+  const refreshToken=getRefreshToken();
+  if(!refreshToken){clearLoginSession();callback(false);return;}
+  callApiAction("refreshLdmSession",[refreshToken])
+    .then(function(result){setLoginSession(result);callback(true);})
+    .catch(function(){clearLoginSession();callback(false);});
+}
+
+function logoutApp(){
+  const token=getSessionToken();
+  if(!token){clearLoginSession();showLogin();return;}
+  callApiAction("logoutLdmSession",[token])
+    .catch(function(){})
+    .finally(function(){
+      clearLoginSession();
+      showLogin("Anda sudah keluar dari LDM Finance.");
+    });
+}
+
+function callServer(method,payload,onSuccess,retried){
+  document.body.classList.add("loading");
+  const token=getSessionToken();
+  if(!token){
+    document.body.classList.remove("loading");
+    showLogin("Silakan login untuk melanjutkan.");
+    return;
+  }
+  const args=payload===undefined?[token]:[token,payload];
+  callApiAction(method,args)
+    .then(function(result){
+      document.body.classList.remove("loading");
+      if(result&&result.message)toast(result.message);
+      if(onSuccess)onSuccess(result);
+      else loadApp();
+    })
+    .catch(function(error){
+      if(!retried&&isSessionError(error)&&getRefreshToken()){
+        refreshLoginSession(function(ok){
+          if(ok)callServer(method,payload,onSuccess,true);
+          else{
+            document.body.classList.remove("loading");
+            showLogin("Sesi login berakhir. Silakan masuk kembali.");
+          }
+        });
+        return;
+      }
+      document.body.classList.remove("loading");
+      if(isSessionError(error)){
+        clearLoginSession();
+        showLogin("Sesi login berakhir. Silakan masuk kembali.");
+      }else{
+        toast(error&&error.message?error.message:String(error),true);
+      }
+    });
+}
+
+function loadApp(retried){
+  const token=getSessionToken();
+  if(!token){showLogin();return;}
+  callApiAction("getAppDataInstant",[token])
+    .then(function(result){
+      AUTH_BUSY=false;
+      applyInstantAppData(result);
+    })
+    .catch(function(error){
+      AUTH_BUSY=false;
+      if(!retried&&isSessionError(error)&&getRefreshToken()){
+        refreshLoginSession(function(ok){
+          if(ok)loadApp(true);
+          else showLogin("Sesi login berakhir. Silakan masuk kembali.");
+        });
+        return;
+      }
+      if(isSessionError(error)){
+        clearLoginSession();
+        showLogin("Sesi login tidak valid. Silakan masuk kembali.");
+        return;
+      }
+      document.getElementById("app").innerHTML=
+        '<div class="content"><div class="card"><h2 style="color:#173247">LDM Finance belum dapat dimuat</h2><p style="color:#71808b;line-height:1.6">'+esc(error&&error.message?error.message:error)+'</p><button class="btn btn-primary" onclick="loadApp()">Coba lagi</button></div></div>';
+    });
+}
+
+function toast(message,isError){
+  const root=document.getElementById("toast-root");
+  root.innerHTML='<div class="toast '+(isError?"error":"")+'">'+esc(message)+'</div>';
+  setTimeout(()=>{root.innerHTML="";},3800);
+}
+function setPage(page){PAGE=page;renderShell();}
+function navItems(){
+  return [
+    ["dashboard","▦","Ringkasan"],["budget","▤","Anggaran"],["debts","◈","Utang & Cicilan"],
+    ["transactions","↕","Transaksi"],["funds","◎","Dana Tujuan"],["settings","⚙","Pengaturan"]
+  ];
+}
+function renderShell(){
+  const period=monthName(DATA.config.periodStart)+" – "+monthName(DATA.config.periodEnd);
+  const nav=navItems();
+  document.getElementById("app").innerHTML=
+    '<div class="app-shell"><aside class="sidebar">'+
+      '<div class="brand"><div class="brand-mark">L</div><div><div class="brand-name">LDM Finance</div><div class="brand-sub">PERSONAL CASHFLOW CONTROL</div></div></div>'+
+      '<div><div class="nav-label">Menu utama</div><nav class="nav">'+nav.map(x=>'<button class="'+(PAGE===x[0]?"active":"")+'" onclick="setPage(\''+x[0]+'\')"><span class="nav-ico">'+x[1]+'</span>'+x[2]+'</button>').join("")+'</nav></div>'+
+      '<div class="side-note"><strong>Kontrol Keuangan LDM</strong>Data utama tersimpan di Supabase PostgreSQL. Catat transaksi aktual secara rutin agar perbandingan rencana dan realisasi tetap akurat.</div>'+
+    '</aside><main class="main"><header class="topbar"><div class="top-title">LDM Finance</div><div class="top-meta"><span class="period-pill">'+esc(period)+'</span><span id="sync-status" class="badge '+(DATA_SYNCING?"badge-gold":DATA_SYNC_ERROR?"badge-red":"badge-green")+'">'+(DATA_SYNCING?"Sinkronisasi…":DATA_SYNC_ERROR?"Cache · belum sinkron":"Data terbaru")+'</span><span class="session-email">'+esc(SESSION_USERNAME)+'</span><button class="btn btn-small" onclick="logoutApp()">Keluar</button><span id="server-time">Server · '+esc(DATA.serverTime||"")+'</span></div></header>'+
+    '<section class="content" id="page-content"></section></main></div>'+
+    '<nav class="mobile-nav">'+nav.map(x=>'<button class="'+(PAGE===x[0]?"active":"")+'" onclick="setPage(\''+x[0]+'\')"><span>'+x[1]+'</span>'+x[2]+'</button>').join("")+'</nav>';
+  renderPage();
+}
+function pageHead(title,subtitle,actions){
+  return '<div class="page-head"><div><h1>'+title+'</h1><p>'+subtitle+'</p></div><div class="actions">'+(actions||"")+'</div></div>';
+}
+function renderPage(){
+  const el=document.getElementById("page-content");
+  if(PAGE==="dashboard")el.innerHTML=renderDashboard();
+  else if(PAGE==="budget")el.innerHTML=renderBudget();
+  else if(PAGE==="debts")el.innerHTML=renderDebts();
+  else if(PAGE==="transactions")el.innerHTML=renderTransactions();
+  else if(PAGE==="funds")el.innerHTML=renderFunds();
+  else el.innerHTML=renderSettings();
+}
+function renderDashboard(){
+  const rows=planRows();
+  const unpaid=(DATA.debts||[]).filter(x=>x.status!=="Lunas");
+  const unpaidTotal=unpaid.reduce((s,x)=>s+Math.max(0,num(x.amount)-num(x.paidAmount)),0);
+  const selected=rows.find(x=>x.budget.month===SELECTED_MONTH)||rows[0];
+  const actual=actualMonth(SELECTED_MONTH);
+  const travelActual=fundBalance("Perjalanan");
+  const emergencyActual=fundBalance("Darurat");
+  const principal=num(DATA.config.partialPrincipalBalance);
+  const dec=DATA.budgets.find(x=>x.month==="2026-12");
+  const decExtra=dec?num(dec.overtime)+num(dec.speakerFee):0;
+  const decActual=activeTransactions().filter(x=>String(x.date||"").slice(0,7)==="2026-12"&&x.type==="Pemasukan"&&["Lembur","Fee narasumber"].indexOf(x.category)>=0).reduce((s,x)=>s+num(x.amount),0);
+  const unknownDue=unpaid.filter(x=>!x.dueDate).length;
+  const planTotal=rows.reduce((s,x)=>s+x.income,0);
+  const dueSoon=unpaid.slice().sort((a,b)=>(a.dueDate||"9999").localeCompare(b.dueDate||"9999")).slice(0,5);
+  const planStatus=selected.remaining<0?"DEFISIT":selected.remaining>0?"ADA SISA":"SEIMBANG";
+  let html=pageHead("Ringkasan keuangan","Pantau arus kas, kewajiban, dan dana tujuan dalam satu dashboard.",
+    '<button class="btn" onclick="loadApp()">↻ Perbarui</button><button class="btn btn-primary" onclick="openTransactionModal()">＋ Catat transaksi</button>');
+  html+='<div class="grid stats">'+
+    statCard("Pemasukan rencana 12 bulan",money(planTotal),"Gaji dan tambahan sesuai anggaran","↗")+
+    statCard("Cicilan belum dibayar",money(unpaidTotal),unpaid.length+" tagihan masih terbuka","◈")+
+    statCard("Dana perjalanan aktual",money(travelActual),"Berdasarkan setoran dan penarikan yang dicatat","◎")+
+    statCard("Dana darurat aktual",money(emergencyActual),"Berdasarkan transaksi dana aktual","✚")+
+    '</div>';
+  html+='<div class="grid two-col"><div class="card"><div class="split-head"><h3 class="section-title">Arus kas bulanan</h3><div class="month-toolbar"><label for="month-select">Bulan</label><select id="month-select" onchange="SELECTED_MONTH=this.value;renderPage()">'+DATA.budgets.map(x=>'<option value="'+esc(x.month)+'" '+(x.month===SELECTED_MONTH?"selected":"")+'>'+esc(monthName(x.month))+'</option>').join("")+'</select></div></div>'+
+    '<div class="month-summary">'+
+      miniCard("Pemasukan rencana",money(selected.income))+
+      miniCard("Kebutuhan keluarga & pribadi",money(selected.needs))+
+      miniCard("Cicilan terjadwal",money(selected.debt))+
+      miniCard("Perjalanan dari pemasukan",money(num(selected.budget.travelExpense)))+
+      miniCard("Setoran dana tujuan",money(num(selected.budget.travelContribution)+num(selected.budget.emergencyContribution)))+
+      miniCard("Sisa setelah alokasi",money(selected.remaining))+
+    '</div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:15px"><span class="muted" style="font-size:11px">Status rencana bulan terpilih</span><span class="badge '+(selected.remaining<0?"badge-red":selected.remaining>0?"badge-green":"badge-gold")+'">'+planStatus+'</span></div>'+
+    '<div style="margin-top:16px;border-top:1px solid var(--line);padding-top:14px"><div class="section-title" style="margin-bottom:8px">Realisasi yang sudah dicatat</div><div class="month-summary">'+miniCard("Pemasukan aktual",money(actual.income))+miniCard("Pengeluaran aktual",money(actual.expense))+miniCard("Sisa setelah alokasi dana",money(actual.net))+'</div></div></div>'+
+    '<div class="card"><h3 class="section-title">Peringatan & catatan</h3>'+
+      '<div class="alert alert-info"><strong>Saldo pokok utang dicatat terpisah</strong>'+money(principal)+' adalah angka saldo pokok yang hanya sebagian. Angka ini tidak ditambahkan lagi ke total cicilan terjadwal '+money(12538345)+'.</div>'+
+      (unknownDue?'<div class="alert"><strong>Jatuh tempo belum lengkap</strong>'+unknownDue+' tagihan Yup/koperasi belum memiliki tanggal jatuh tempo. Perbarui setelah memeriksa aplikasi atau perjanjian.</div>':'')+
+      (decExtra&&decActual<decExtra?'<div class="alert alert-danger"><strong>Perjalanan Desember masih bersyarat</strong>Rencana tambahan Desember '+money(decExtra)+', tetapi yang tercatat masuk saat ini '+money(decActual)+'. Jangan merealisasikan perjalanan Rp5 juta sebelum dana tambahan benar-benar diterima atau dana tunai pengganti tersedia.</div>':'<div class="alert alert-info"><strong>Perjalanan Desember</strong>Periksa kecukupan dana aktual sebelum melakukan pembayaran perjalanan.</div>')+
+    '</div></div>';
+  html+='<div class="grid two-col" style="margin-top:16px"><div class="card"><h3 class="section-title">Rencana anggaran 12 bulan</h3><p class="section-sub">Sisa dihitung setelah kebutuhan, cicilan terjadwal, perjalanan, dan setoran dana tujuan.</p>'+
+    '<div class="table-wrap"><table><thead><tr><th>Bulan</th><th>Pemasukan</th><th>Kebutuhan</th><th>Cicilan</th><th>Sisa rencana</th><th>Status</th></tr></thead><tbody>'+
+    rows.map(x=>'<tr><td><button class="btn btn-small" onclick="SELECTED_MONTH=\''+x.budget.month+'\';setPage(\'budget\')">'+esc(monthName(x.budget.month))+'</button></td><td class="money">'+money(x.income)+'</td><td>'+money(x.needs)+'</td><td>'+money(x.debt)+'</td><td class="money">'+money(x.remaining)+'</td><td><span class="badge '+(x.remaining<0?"badge-red":x.remaining>0?"badge-green":"badge-gold")+'">'+(x.remaining<0?"Defisit":x.remaining>0?"Ada sisa":"Seimbang")+'</span></td></tr>').join("")+
+    '</tbody></table></div></div>'+
+    '<div class="card"><h3 class="section-title">Kewajiban yang perlu dipantau</h3><p class="section-sub">Pembayaran yang belum ditandai lunas.</p>'+
+    (dueSoon.length?'<div class="table-wrap"><table style="min-width:450px"><thead><tr><th>Kreditur</th><th>Jatuh tempo</th><th>Nominal</th><th></th></tr></thead><tbody>'+dueSoon.map(d=>'<tr><td><strong>'+esc(d.creditor)+'</strong><div class="muted">'+esc(d.description)+'</div></td><td>'+esc(dateLabel(d.dueDate))+'</td><td class="money">'+money(Math.max(0,num(d.amount)-num(d.paidAmount)))+'</td><td><button class="btn btn-small btn-primary" onclick="openPaymentModal(\''+esc(d.debtId)+'\')">Bayar</button></td></tr>').join("")+'</tbody></table></div>':'<div class="empty">Tidak ada tagihan terbuka.</div>')+
+    '</div></div>';
+  return html;
+}
+function statCard(label,value,foot,icon){
+  return '<div class="card"><div class="stat-top"><span>'+label+'</span><span class="stat-icon">'+icon+'</span></div><div class="stat-value">'+value+'</div><div class="stat-foot">'+foot+'</div></div>';
+}
+function miniCard(label,value){return '<div class="mini"><span>'+label+'</span><strong>'+value+'</strong></div>';}
+
+function renderBudget(){
+  const b=DATA.budgets.find(x=>x.month===SELECTED_MONTH)||DATA.budgets[0];
+  if(!b)return pageHead("Anggaran","Belum ada data anggaran.");
+  const debt=debtForMonth(b.month);
+  const income=num(b.salary)+num(b.overtime)+num(b.speakerFee);
+  const needs=num(b.family)+num(b.rent)+num(b.electricity)+num(b.internet)+num(b.personal);
+  const surplus=income-needs-debt-num(b.travelExpense);
+  const remaining=surplus-num(b.travelContribution)-num(b.emergencyContribution);
+  let html=pageHead("Anggaran bulanan","Ubah rencana per bulan. Nilai cicilan dihitung otomatis dari jadwal utang.",
+    '<button class="btn" onclick="loadApp()">↻ Perbarui</button>');
+  html+='<div class="card"><div class="month-toolbar"><label>Bulan anggaran</label><select onchange="SELECTED_MONTH=this.value;renderPage()">'+DATA.budgets.map(x=>'<option value="'+esc(x.month)+'" '+(x.month===b.month?"selected":"")+'>'+esc(monthName(x.month))+'</option>').join("")+'</select></div>'+
+    '<form onsubmit="submitBudget(event)"><div class="form-grid">'+
+      budgetField("Gaji pokok","salary",b.salary)+budgetField("Lembur","overtime",b.overtime)+budgetField("Fee narasumber","speakerFee",b.speakerFee)+
+      budgetField("Istri & anak","family",b.family)+budgetField("Kontrakan","rent",b.rent)+budgetField("Listrik","electricity",b.electricity)+
+      budgetField("Wi-Fi / data","internet",b.internet)+budgetField("Kebutuhan pribadi","personal",b.personal)+
+      budgetField("Perjalanan dari pemasukan","travelExpense",b.travelExpense)+budgetField("Setoran dana perjalanan","travelContribution",b.travelContribution)+
+      budgetField("Penarikan dana perjalanan","travelWithdrawal",b.travelWithdrawal)+budgetField("Setoran dana darurat","emergencyContribution",b.emergencyContribution)+
+      '<div class="field full"><label>Catatan anggaran</label><textarea name="note" rows="2">'+esc(b.note||"")+'</textarea></div>'+
+    '</div><input type="hidden" name="month" value="'+esc(b.month)+'">'+
+    '<div class="form-actions"><button class="btn btn-primary" type="submit">Simpan anggaran</button></div></form></div>';
+  html+='<div class="grid stats" style="margin-top:16px">'+statCard("Total pemasukan",money(income),"Gaji + lembur + fee","↗")+statCard("Kebutuhan keluarga & pribadi",money(needs),"Pengeluaran terencana","⌂")+statCard("Cicilan terjadwal",money(debt),"Dari jadwal utang bulan ini","◈")+statCard("Sisa setelah seluruh alokasi",money(remaining),remaining<0?"Perlu penyesuaian anggaran":"Rencana tidak defisit",remaining<0?"!":"✓")+'</div>';
+  html+='<div class="card"><h3 class="section-title">Rincian perhitungan</h3><div class="table-wrap"><table><tbody>'+
+    '<tr><td>Pemasukan</td><td class="money">'+money(income)+'</td></tr><tr><td>Kebutuhan keluarga dan pribadi</td><td>'+money(needs)+'</td></tr><tr><td>Cicilan terjadwal</td><td>'+money(debt)+'</td></tr><tr><td>Biaya perjalanan langsung dari pemasukan</td><td>'+money(b.travelExpense)+'</td></tr><tr><td>Surplus sebelum alokasi dana</td><td class="money">'+money(surplus)+'</td></tr><tr><td>Setoran dana perjalanan + dana darurat</td><td>'+money(num(b.travelContribution)+num(b.emergencyContribution))+'</td></tr><tr><td><strong>Sisa tak teralokasi</strong></td><td class="money"><strong>'+money(remaining)+'</strong></td></tr>'+
+    '</tbody></table></div><p class="footer-note">Catatan: angka di halaman ini adalah rencana, bukan transaksi aktual. Pembayaran cicilan aktual dicatat melalui menu Utang & Cicilan.</p></div>';
+  return html;
+}
+function budgetField(label,name,value){
+  return '<div class="field"><label>'+label+' (Rp)</label><input type="number" name="'+name+'" min="0" step="1" value="'+num(value)+'" required></div>';
+}
+function submitBudget(event){
+  event.preventDefault();const f=event.target;
+  const payload={month:f.month.value,note:f.note.value};
+  ["salary","overtime","speakerFee","family","rent","electricity","internet","personal","travelExpense","travelContribution","travelWithdrawal","emergencyContribution"].forEach(k=>payload[k]=f[k].value);
+  callServer("saveBudget",payload,()=>loadApp());
+}
+
+function renderDebts(){
+  const debts=(DATA.debts||[]).filter(d=>DEBT_FILTER==="Semua"||(DEBT_FILTER==="Lunas"?d.status==="Lunas":d.status!=="Lunas")).sort((a,b)=>(a.dueDate||"9999").localeCompare(b.dueDate||"9999"));
+  const total=(DATA.debts||[]).reduce((s,x)=>s+num(x.amount),0);
+  const paid=(DATA.debts||[]).reduce((s,x)=>s+num(x.paidAmount),0);
+  const unpaid=(DATA.debts||[]).reduce((s,x)=>s+Math.max(0,num(x.amount)-num(x.paidAmount)),0);
+  let html=pageHead("Utang & cicilan","Pantau tagihan, catat pembayaran, dan pisahkan saldo pokok dari jadwal cicilan.",
+    '<button class="btn" onclick="loadApp()">↻ Perbarui</button><button class="btn btn-primary" onclick="openDebtModal()">＋ Tambah cicilan</button>');
+  html+='<div class="grid stats">'+statCard("Total cicilan terjadwal",money(total),"Jumlah jadwal pada workbook","◈")+statCard("Sudah dibayar",money(paid),"Berdasarkan pembayaran yang dicatat","✓")+statCard("Belum dibayar",money(unpaid),"Nominal jadwal yang masih terbuka","!")+statCard("Saldo pokok (sebagian)",money(DATA.config.partialPrincipalBalance),"Terpisah; tidak ditambahkan ke total cicilan","≠")+'</div>';
+  html+='<div class="card"><div class="split-head"><div><h3 class="section-title">Daftar kewajiban</h3><p class="section-sub" style="margin:0">Bulan anggaran adalah bulan gaji yang menyisihkan uang untuk tagihan.</p></div><div class="inline-filter"><select onchange="DEBT_FILTER=this.value;renderPage()"><option>Belum dibayar</option><option '+(DEBT_FILTER==="Lunas"?"selected":"")+' value="Lunas">Lunas</option><option '+(DEBT_FILTER==="Semua"?"selected":"")+' value="Semua">Semua</option></select></div></div>'+
+    '<div class="table-wrap"><table><thead><tr><th>Kreditur</th><th>Bulan anggaran</th><th>Jatuh tempo</th><th>Keterangan</th><th>Nominal jadwal</th><th>Status</th><th>Aksi</th></tr></thead><tbody>'+
+    (debts.length?debts.map(d=>'<tr><td><strong>'+esc(d.creditor)+'</strong><div class="muted">'+esc(d.source||"")+'</div></td><td>'+esc(monthName(d.budgetMonth))+'</td><td>'+esc(dateLabel(d.dueDate))+'</td><td>'+esc(d.description)+'</td><td class="money">'+money(d.amount)+'</td><td><span class="badge '+(d.status==="Lunas"?"badge-green":d.status==="Sebagian"?"badge-gold":"badge-grey")+'">'+esc(d.status)+'</span>'+(num(d.paidAmount)>0?'<div class="muted">Dibayar '+money(d.paidAmount)+' · Sisa '+money(Math.max(0,num(d.amount)-num(d.paidAmount)))+'</div>':'')+'</td><td>'+(num(d.paidAmount)>0?'<button class="btn btn-small btn-danger" onclick="undoPayment(\''+esc(d.debtId)+'\')">Batalkan</button>':'<button class="btn btn-small btn-primary" onclick="openPaymentModal(\''+esc(d.debtId)+'\')">Catat bayar</button> <button class="btn btn-small" onclick="openDebtModal(\''+esc(d.debtId)+'\')">Edit</button>')+(d.status==="Sebagian"?' <button class="btn btn-small btn-primary" onclick="openPaymentModal(\''+esc(d.debtId)+'\')">Lanjut bayar</button>':'')+'</td></tr>').join(""):'<tr><td colspan="7" class="empty">Tidak ada data cicilan untuk filter ini.</td></tr>')+
+    '</tbody></table></div><p class="footer-note">Total Rp12.538.345 pada catatan awal terdiri dari Yup Rp1.070.000, TikTok Rp8.068.345, dan koperasi Rp3.400.000. Pastikan tagihan Yup setelah Desember dan biaya/bunga lain diperbarui jika ada.</p></div>';
+  return html;
+}
+function openDebtModal(id){
+  const d=id?DATA.debts.find(x=>x.debtId===id):null;
+  showModal(d?"Edit cicilan":"Tambah cicilan",
+    '<form onsubmit="submitDebt(event)"><div class="form-grid">'+
+    '<div class="field"><label>Kreditur</label><input name="creditor" value="'+esc(d?d.creditor:"")+'" required></div>'+
+    '<div class="field"><label>Bulan anggaran</label><input name="budgetMonth" type="month" value="'+esc(d?d.budgetMonth:SELECTED_MONTH)+'" required></div>'+
+    '<div class="field"><label>Jatuh tempo (opsional)</label><input name="dueDate" type="date" value="'+esc(d?d.dueDate:"")+'"></div>'+
+    '<div class="field"><label>Nominal cicilan (Rp)</label><input name="amount" type="number" min="1" value="'+esc(d?d.amount:"")+'" required></div>'+
+    '<div class="field full"><label>Keterangan</label><input name="description" value="'+esc(d?d.description:"")+'" required></div>'+
+    '<div class="field full"><label>Catatan</label><textarea name="note" rows="2">'+esc(d?d.note:"")+'</textarea></div></div>'+
+    '<input type="hidden" name="debtId" value="'+esc(d?d.debtId:"")+'"><div class="form-actions"><button type="button" class="btn" onclick="closeModal()">Batal</button><button class="btn btn-primary" type="submit">Simpan</button></div></form>');
+}
+function submitDebt(event){
+  event.preventDefault();const f=event.target;
+  callServer("saveDebt",{debtId:f.debtId.value,creditor:f.creditor.value,budgetMonth:f.budgetMonth.value,dueDate:f.dueDate.value,amount:f.amount.value,description:f.description.value,note:f.note.value},()=>{closeModal();loadApp();});
+}
+function openPaymentModal(id){
+  const d=DATA.debts.find(x=>x.debtId===id);if(!d)return;
+  showModal("Catat pembayaran",
+    '<form onsubmit="submitPayment(event)"><div class="alert alert-info"><strong>'+esc(d.creditor)+' · '+esc(d.description)+'</strong>Nominal jadwal: '+money(d.amount)+'</div>'+
+    '<div class="form-grid"><div class="field"><label>Tanggal pembayaran</label><input name="paidDate" type="date" value="'+todayIso()+'" required></div>'+
+    '<div class="field"><label>Nominal dibayar (Rp)</label><input name="paidAmount" type="number" min="1" max="'+Math.max(1,num(d.amount)-num(d.paidAmount))+'" value="'+Math.max(0,num(d.amount)-num(d.paidAmount))+'" required></div>'+
+    '<div class="field"><label>Metode</label><select name="method"><option>Transfer</option><option>Tunai</option><option>E-Wallet</option><option>Autodebet</option></select></div>'+
+    '<div class="field"><label>Catatan</label><input name="note" placeholder="Opsional"></div></div>'+
+    '<input type="hidden" name="debtId" value="'+esc(d.debtId)+'"><div class="form-actions"><button type="button" class="btn" onclick="closeModal()">Batal</button><button class="btn btn-primary" type="submit">Simpan pembayaran</button></div></form>');
+}
+function submitPayment(event){
+  event.preventDefault();const f=event.target;
+  callServer("markDebtPaid",{debtId:f.debtId.value,paidDate:f.paidDate.value,paidAmount:f.paidAmount.value,method:f.method.value,note:f.note.value},()=>{closeModal();loadApp();});
+}
+function undoPayment(id){
+  if(!confirm("Batalkan seluruh pembayaran pada cicilan ini? Transaksi terkait akan dinonaktifkan, tetapi riwayat tetap tersimpan."))return;
+  callServer("undoDebtPayment",id,()=>loadApp());
+}
+
+function renderTransactions(){
+  let tx=DATA.transactions||[];
+  if(TX_FILTER!=="Semua")tx=tx.filter(x=>x.type===TX_FILTER);
+  if(SEARCH_TX)tx=tx.filter(x=>(x.description+" "+x.category+" "+x.note).toLowerCase().includes(SEARCH_TX.toLowerCase()));
+  tx=tx.slice().sort((a,b)=>(b.date||"").localeCompare(a.date||""));
+  const active=activeTransactions();
+  const income=active.filter(x=>x.type==="Pemasukan").reduce((s,x)=>s+num(x.amount),0);
+  const expense=active.filter(x=>x.type==="Pengeluaran").reduce((s,x)=>s+num(x.amount),0);
+  let html=pageHead("Transaksi","Catat pemasukan dan pengeluaran aktual. Pembayaran cicilan dicatat dari menu Utang.",
+    '<button class="btn" onclick="exportTransactionsCsv()">⇩ Ekspor CSV</button><button class="btn btn-primary" onclick="openTransactionModal()">＋ Transaksi baru</button>');
+  html+='<div class="grid stats">'+statCard("Total pemasukan tercatat",money(income),"Seluruh periode","↗")+statCard("Total pengeluaran tercatat",money(expense),"Termasuk cicilan yang sudah dibayar","↘")+statCard("Jumlah transaksi aktif",active.length+" transaksi","Tidak termasuk transaksi dibatalkan","≡")+statCard("Transaksi dibatalkan",(DATA.transactions||[]).filter(x=>x.status==="Dibatalkan").length+" transaksi","Riwayat tidak dihapus permanen","↺")+'</div>';
+  html+='<div class="card"><div class="split-head"><h3 class="section-title">Riwayat transaksi</h3><div class="inline-filter"><input placeholder="Cari keterangan/kategori" value="'+esc(SEARCH_TX)+'" oninput="SEARCH_TX=this.value;renderPage()"><select onchange="TX_FILTER=this.value;renderPage()"><option>Semua</option><option '+(TX_FILTER==="Pemasukan"?"selected":"")+' value="Pemasukan">Pemasukan</option><option '+(TX_FILTER==="Pengeluaran"?"selected":"")+' value="Pengeluaran">Pengeluaran</option></select></div></div>'+
+    '<div class="table-wrap"><table><thead><tr><th>Tanggal</th><th>Jenis</th><th>Kategori</th><th>Keterangan</th><th>Metode</th><th>Nominal</th><th>Status</th><th></th></tr></thead><tbody>'+
+    (tx.length?tx.map(t=>'<tr><td>'+esc(dateLabel(t.date))+'</td><td><span class="badge '+(t.type==="Pemasukan"?"badge-green":"badge-grey")+'">'+esc(t.type)+'</span></td><td>'+esc(t.category)+'</td><td>'+esc(t.description)+(t.note?'<div class="muted">'+esc(t.note)+'</div>':'')+'</td><td>'+esc(t.method)+'</td><td class="money">'+(t.type==="Pemasukan"?"+":"−")+money(t.amount)+'</td><td><span class="badge '+(t.status==="Aktif"?"badge-green":"badge-red")+'">'+esc(t.status)+'</span></td><td>'+(t.status==="Aktif"&&!t.linkedDebtId?'<button class="btn btn-small btn-danger" onclick="cancelTx(\''+esc(t.transactionId)+'\')">Batalkan</button>':"")+'</td></tr>').join(""):'<tr><td colspan="8" class="empty">Belum ada transaksi sesuai filter.</td></tr>')+
+    '</tbody></table></div><p class="footer-note">Pembatalan transaksi menggunakan status, bukan menghapus baris data. Pembayaran cicilan yang terhubung ke jadwal utang hanya dapat dibatalkan dari menu Utang & Cicilan.</p></div>';
+  return html;
+}
+function openTransactionModal(){
+  showModal("Catat transaksi",
+    '<form onsubmit="submitTransaction(event)"><div class="form-grid">'+
+    '<div class="field"><label>Tanggal</label><input type="date" name="date" value="'+todayIso()+'" required></div>'+
+    '<div class="field"><label>Jenis transaksi</label><select name="type" id="tx-type" onchange="updateCategories()" required><option>Pemasukan</option><option>Pengeluaran</option></select></div>'+
+    '<div class="field"><label>Kategori</label><select name="category" id="tx-category"></select></div>'+
+    '<div class="field"><label>Nominal (Rp)</label><input type="number" name="amount" min="1" required></div>'+
+    '<div class="field full"><label>Keterangan</label><input name="description" placeholder="Contoh: Belanja mingguan" required></div>'+
+    '<div class="field"><label>Metode</label><select name="method"><option>Transfer</option><option>Tunai</option><option>E-Wallet</option><option>Kartu</option><option>Lainnya</option></select></div>'+
+    '<div class="field"><label>Catatan</label><input name="note" placeholder="Opsional"></div></div>'+
+    '<div class="form-note" style="margin-top:10px">Untuk menghindari penghitungan ganda, jangan memasukkan cicilan melalui formulir ini. Gunakan tombol Catat bayar pada jadwal utang.</div>'+
+    '<div class="form-actions"><button type="button" class="btn" onclick="closeModal()">Batal</button><button class="btn btn-primary" type="submit">Simpan transaksi</button></div></form>');
+  updateCategories();
+}
+function updateCategories(){
+  const type=document.getElementById("tx-type").value;
+  const categories=type==="Pemasukan"?["Gaji","Lembur","Fee narasumber","Penghasilan lain"]:["Keluarga","Kontrakan","Listrik","Wi-Fi/Data","Kebutuhan pribadi","Makan","Transportasi","Kesehatan","Pendidikan","Belanja","Lainnya"];
+  document.getElementById("tx-category").innerHTML=categories.map(x=>'<option>'+x+'</option>').join("");
+}
+function submitTransaction(event){
+  event.preventDefault();const f=event.target;
+  callServer("saveTransaction",{date:f.date.value,type:f.type.value,category:f.category.value,amount:f.amount.value,description:f.description.value,method:f.method.value,note:f.note.value},()=>{closeModal();loadApp();});
+}
+function cancelTx(id){
+  if(!confirm("Batalkan transaksi ini? Riwayat tetap disimpan."))return;
+  callServer("cancelTransaction",id,()=>loadApp());
+}
+
+function renderFunds(){
+  const travel=fundBalance("Perjalanan"), emergency=fundBalance("Darurat");
+  const plan=planRows();const last=plan[plan.length-1]||{};
+  const funds=(DATA.funds||[]).slice().sort((a,b)=>(b.date||"").localeCompare(a.date||""));
+  let html=pageHead("Dana tujuan","Pisahkan tabungan perjalanan dan dana darurat dari uang operasional.",
+    '<button class="btn btn-primary" onclick="openFundModal()">＋ Catat setoran / penarikan</button>');
+  html+='<div class="grid stats">'+statCard("Dana perjalanan aktual",money(travel),"Saldo berdasarkan catatan dana","◎")+statCard("Dana darurat aktual",money(emergency),"Saldo berdasarkan catatan dana","✚")+statCard("Proyeksi dana perjalanan Okt 2027",money(last.travelEnd||0),"Jika seluruh rencana dijalankan","↗")+statCard("Proyeksi dana darurat Okt 2027",money(last.emergencyEnd||0),"Jika seluruh rencana dijalankan","＋")+'</div>';
+  html+='<div class="grid two-col"><div class="card"><h3 class="section-title">Perkembangan dana sesuai rencana</h3><div class="table-wrap"><table style="min-width:500px"><thead><tr><th>Bulan</th><th>Setoran perjalanan</th><th>Penarikan</th><th>Saldo rencana</th><th>Dana darurat</th></tr></thead><tbody>'+
+    plan.map(x=>'<tr><td>'+esc(monthName(x.budget.month))+'</td><td>'+money(x.budget.travelContribution)+'</td><td>'+money(x.budget.travelWithdrawal)+'</td><td class="money">'+money(x.travelEnd)+'</td><td>'+money(x.emergencyEnd)+'</td></tr>').join("")+
+    '</tbody></table></div><p class="footer-note">Rencana perjalanan Desember 2026 sebesar Rp5 juta dibayar langsung dari pemasukan Desember, bukan dari saldo dana perjalanan. Perjalanan kedua direncanakan Juni 2027.</p></div>'+
+    '<div class="card"><h3 class="section-title">Aturan pencatatan dana</h3><div class="alert alert-info"><strong>Setoran bukan pengeluaran konsumtif</strong>Setoran dana dicatat sebagai pemindahan/alokasi uang. Sistem mengurangkannya dari sisa kas aktual, tetapi memisahkannya dari biaya hidup.</div><div class="alert"><strong>Penarikan harus memiliki saldo</strong>Sistem menolak penarikan yang melebihi saldo dana yang tercatat.</div></div></div>';
+  html+='<div class="card" style="margin-top:16px"><h3 class="section-title">Riwayat pergerakan dana</h3><div class="table-wrap"><table><thead><tr><th>Tanggal</th><th>Jenis dana</th><th>Aktivitas</th><th>Nominal</th><th>Catatan</th></tr></thead><tbody>'+
+    (funds.length?funds.map(x=>'<tr><td>'+esc(dateLabel(x.date))+'</td><td>'+esc(x.fundType)+'</td><td>'+esc(x.movement)+'</td><td class="money">'+money(x.amount)+'</td><td>'+esc(x.note||"—")+'</td></tr>').join(""):'<tr><td colspan="5" class="empty">Belum ada setoran atau penarikan aktual. Saldo aktual dimulai dari Rp0.</td></tr>')+
+    '</tbody></table></div></div>';
+  return html;
+}
+function openFundModal(){
+  showModal("Catat pergerakan dana",
+    '<form onsubmit="submitFund(event)"><div class="form-grid">'+
+    '<div class="field"><label>Jenis dana</label><select name="fundType"><option>Perjalanan</option><option>Darurat</option></select></div>'+
+    '<div class="field"><label>Aktivitas</label><select name="movement"><option>Setoran</option><option>Penarikan</option></select></div>'+
+    '<div class="field"><label>Tanggal</label><input name="date" type="date" value="'+todayIso()+'" required></div>'+
+    '<div class="field"><label>Nominal (Rp)</label><input name="amount" type="number" min="1" required></div>'+
+    '<div class="field full"><label>Catatan</label><input name="note" placeholder="Contoh: Setoran dari gaji bulan ini"></div></div>'+
+    '<div class="form-actions"><button type="button" class="btn" onclick="closeModal()">Batal</button><button class="btn btn-primary" type="submit">Simpan</button></div></form>');
+}
+function submitFund(event){
+  event.preventDefault();const f=event.target;
+  callServer("addFundMovement",{fundType:f.fundType.value,movement:f.movement.value,date:f.date.value,amount:f.amount.value,note:f.note.value},()=>{closeModal();loadApp();});
+}
+
+function renderSettings(){
+  const c=DATA.config;
+  let html=pageHead("Pengaturan & cadangan data","Periksa asumsi utama dan simpan salinan data ke perangkat Anda.",
+    '<button class="btn" onclick="exportTransactionsCsv()">⇩ Ekspor transaksi CSV</button><button class="btn btn-primary" onclick="exportBackup()">⇩ Backup JSON</button>');
+  html+='<div class="card"><h3 class="section-title">Asumsi utama</h3><form onsubmit="submitSettings(event)">'+
+    '<div class="setting-row"><div><strong>Gaji rutin per bulan</strong><small>Nilai awal dari workbook; anggaran bulanan dapat diubah satu per satu.</small></div><input type="number" name="monthlySalary" min="0" value="'+num(c.monthlySalary)+'"></div>'+
+    '<div class="setting-row"><div><strong>Saldo pokok utang (angka sebagian)</strong><small>Tidak dijumlahkan ke total cicilan terjadwal.</small></div><input type="number" name="partialPrincipalBalance" min="0" value="'+num(c.partialPrincipalBalance)+'"></div>'+
+    '<div class="setting-row"><div><strong>Target biaya perjalanan</strong><small>Target biaya untuk satu kali perjalanan pulang.</small></div><input type="number" name="travelTarget" min="0" value="'+num(c.travelTarget)+'"></div>'+
+    '<div class="form-actions"><button class="btn btn-primary" type="submit">Simpan pengaturan</button></div></form></div>';
+  html+='<div class="card" style="margin-top:16px"><div class="split-head"><div><h3 class="section-title">Koneksi database Supabase</h3><p class="section-sub" style="margin:0">Database utama aplikasi sekarang menggunakan PostgreSQL di Supabase.</p></div><button class="btn btn-primary" onclick="runDbCheck()">Uji koneksi</button></div>'+
+    '<div class="alert alert-info"><strong>Storage aktif: Supabase PostgreSQL</strong>Transaksi, anggaran, cicilan, pembayaran, dan dana tujuan disimpan melalui backend Apps Script ke Supabase. Secret key tidak dikirim ke browser.</div>'+
+    '<div class="footer-note">Google Sheets lama dipertahankan sebagai backup migrasi. Setelah migrasi selesai, aplikasi tidak lagi menulis data baru ke spreadsheet tersebut.</div></div>';
+  html+='<div class="card" style="margin-top:16px"><h3 class="section-title">Sumber data dan batasan</h3>'+
+    '<div class="setting-row"><div><strong>Periode rencana</strong><small>'+esc(monthName(c.periodStart))+' sampai '+esc(monthName(c.periodEnd))+'</small></div><span class="badge badge-grey">12 bulan</span></div>'+
+    '<div class="setting-row"><div><strong>Total cicilan awal</strong><small>Yup Rp1.070.000 + TikTok Rp8.068.345 + koperasi Rp3.400.000.</small></div><strong>'+money(12538345)+'</strong></div>'+
+    '<div class="setting-row"><div><strong>Catatan perjalanan Desember</strong><small>'+esc(c.travelConditionNote||"")+'</small></div></div>'+
+    '<div class="setting-row"><div><strong>Catatan sumber</strong><small>'+esc(c.sourceNote||"")+'</small></div></div>'+
+    '<div class="alert alert-info" style="margin-top:14px"><strong>Privasi dan penyimpanan</strong>Data keuangan tersimpan di Supabase PostgreSQL. Secret API Key hanya berada di Script Properties sisi server Apps Script. Pertahankan deployment Only myself dan gunakan Backup JSON secara berkala.</div>'+
+    '<div class="footer-note">Backup JSON memuat data transaksi dan kewajiban keuangan. Simpan di lokasi pribadi yang terlindungi. Aplikasi ini tidak terhubung ke rekening bank atau aplikasi kredit secara otomatis.</div></div>';
+  return html;
+}
+function submitSettings(event){
+  event.preventDefault();const f=event.target;
+  callServer("saveSettings",{monthlySalary:f.monthlySalary.value,partialPrincipalBalance:f.partialPrincipalBalance.value,travelTarget:f.travelTarget.value},()=>loadApp());
+}
+
+
+function runDbCheck(){
+  callServer("getDatabaseStatus",undefined,function(result){
+    const counts=(result.tables||[]).map(x=>x.name+": "+x.rows+" baris").join(" · ");
+    toast((result.ok?"Koneksi Supabase OK. ":"Koneksi bermasalah. ")+result.projectHost+" — "+counts);
+  });
+}
+function showModal(title,body){
+  document.getElementById("modal-root").innerHTML='<div class="modal-backdrop" onclick="if(event.target===this)closeModal()"><div class="modal"><div class="modal-head"><h3>'+esc(title)+'</h3><button class="close" onclick="closeModal()">×</button></div>'+body+'</div></div>';
+}
+function closeModal(){document.getElementById("modal-root").innerHTML="";}
+function exportBackup(){
+  const payload={app:"LDM Finance",exportedAt:new Date().toISOString(),data:DATA};
+  downloadFile("ldm-finance-backup-"+todayIso()+".json",JSON.stringify(payload,null,2),"application/json");
+}
+function exportTransactionsCsv(){
+  const rows=[["Tanggal","Jenis","Kategori","Keterangan","Nominal","Metode","Status","ID Utang"]];
+  (DATA.transactions||[]).forEach(t=>rows.push([t.date,t.type,t.category,t.description,t.amount,t.method,t.status,t.linkedDebtId]));
+  const csv=rows.map(row=>row.map(v=>'"'+String(v==null?"":v).replace(/"/g,'""')+'"').join(",")).join("\r\n");
+  downloadFile("ldm-finance-transaksi-"+todayIso()+".csv","\ufeff"+csv,"text/csv;charset=utf-8");
+}
+function downloadFile(name,content,type){
+  const blob=new Blob([content],{type:type});const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+}
+
+loadApp();
+</script>
+</body>
+</html>

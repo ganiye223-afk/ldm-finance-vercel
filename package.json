@@ -1,0 +1,12 @@
+{
+  "name": "ldm-finance-vercel",
+  "version": "1.0.0",
+  "private": true,
+  "description": "LDM Finance frontend on Vercel with secure Apps Script API proxy",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "vercel dev"
+  }
+}
